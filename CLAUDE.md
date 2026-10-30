@@ -84,4 +84,3 @@ macOS 27+, Apple Silicon, Xcode 27 (Swift 6.4, builds run `xcrun swift`), Ruby 4
 - Do not let tests pick a camera on their own; they use only `AV_FOUNDATION_MAC_TEST_DEVICE`
 - Do not commit captured images
 - Commit messages in English, conventional commits style
-- `.claude/` is committed
