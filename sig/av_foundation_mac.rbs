@@ -1,0 +1,43 @@
+module AVFoundationMac
+  # The gem version.
+  VERSION: String
+
+  # Base class for errors raised by this gem.
+  class Error < StandardError
+  end
+
+  # An image container accepted by +format:+.
+  type format = :jpeg | :heic
+
+  # Lists the video capture devices: built-in, external, Continuity Camera, and Desk View cameras.
+  # Returns one "id\tname\tposition" line per device, where position is "front", "back", or "unspecified",
+  # or an empty string when there is no device.
+  def self.devices: () -> String
+
+  # Opens a capture session on the device +device_id+, waits for auto-exposure to settle,
+  # writes one frame to +out_path+, and closes the session.
+  # +width+ and +height+, when both are positive, fit the frame into that box keeping its aspect ratio.
+  # +quality+ is the lossy compression quality from 0.0 to 1.0.
+  # Returns +out_path+, or an empty string when the device is missing, access is denied, no frame arrives in time,
+  # or the file cannot be written. The parent directory of +out_path+ must exist.
+  # Releases the GVL while it waits. Any interrupt of the waiting thread ends the wait at once:
+  # Interrupt and Thread#raise raise as usual, and an interrupt that raises nothing (a trap handler that returns, Thread#wakeup)
+  # makes the call return an empty string.
+  # Raises ArgumentError for an unknown +format+ or keyword.
+  def self.snapshot: (String device_id, String out_path, ?format: format, ?width: Integer, ?height: Integer, ?quality: Float) -> String
+
+  # Opens the persistent capture session on the device +device_id+ and waits for auto-exposure to settle.
+  # The keywords are those of +snapshot+ and apply to every +capture_frame+.
+  # Closes the session already open first, so at most one session exists per process.
+  # Returns "ok", or an empty string when the session cannot start or settle; the session it started is closed after a failure.
+  # Releases the GVL while it waits, and an interrupt ends the wait as in +snapshot+; an interrupt during the warm-up leaves no session open.
+  # Raises ArgumentError for an unknown +format+ or keyword.
+  def self.open_session: (String device_id, ?format: format, ?width: Integer, ?height: Integer, ?quality: Float) -> String
+
+  # Writes the latest frame of the open session to +out_path+ with the settings given to +open_session+.
+  # Returns +out_path+, or an empty string when no session is open or the file cannot be written.
+  def self.capture_frame: (String out_path) -> String
+
+  # Stops and releases the open session. Does nothing when no session is open.
+  def self.close_session: () -> nil
+end
